@@ -1,0 +1,9 @@
+53850d340ba3e0f8ab9a91507ab8a311 *DESCRIPTION
+de59cb4da56477ffcbb531ac136b8a75 *INDEX
+9fdfeb11f7ddba6f3aab9aaa6b1ac5dd *NAMESPACE
+91ed526f042b3f18ac80cb99bb949a72 *R/sharp3d.R
+27912282f746fe961f53267dbc5b450e *data/d.R
+fa784f5615cc4485b9629ee3376d2e9f *man/d.Rd
+422c951b462560b0074d686ffbe70cbf *man/sharp3d.Rd
+33e60be9db9dc70487f76735dba3ec60 *man/sharp3dB.Rd
+01a3caee86d19220b098c0554fd7641b *src/sharp3d.f

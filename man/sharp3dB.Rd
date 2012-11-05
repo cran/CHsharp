@@ -42,6 +42,4 @@ estimation.  Biometrika 86, 941-947.
 \author{Douglas G. Woolford, W. John Braun} 
 
 \seealso{sharp3d}
-\examples{
-}
 \keyword{cluster}

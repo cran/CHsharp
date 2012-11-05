@@ -1,5 +1,6 @@
-# Default NAMESPACE created by R
-# Remove the previous line if you edit this file
-
-# Export all names
 exportPattern(".")
+export(sharp1d, sharp2d, sharp3d, sharp3dB)
+import(
+  scatterplot3d 
+)
+useDynLib(CHsharp)

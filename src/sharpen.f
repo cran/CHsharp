@@ -1,38 +1,6 @@
-c     Last change:  WJB   May 2004   
+CCCCC Apply Choi and Hall (1999) data sharpening procedure in 2 and 3 dimensions
 
-CCCCC Give density estimates for data sharpening density estimator
-
-CCCCC This subroutine implements univariate data sharpening technique
-CCCCC To be used with Splus or R
-
-      
-      SUBROUTINE  sharp3d(n,hsharp,htime,x,y,z,xsharp,ysharp,zsharp,v)
-
-      INTEGER             n,v
-      DOUBLE PRECISION    x(n), y(n), z(n), xsharp(n), ysharp(n), 
-     & hsharp, htime, zsharp(n)
-      
-c      DLL_EXPORT sharp3d
-
-      CALL  sharp(x,y,z,xsharp,ysharp,zsharp,n,hsharp,htime,v)
-
-      END
-
-CCCCC
-      SUBROUTINE  sharp3dB(n,hsharp,htime,x,y,z,xsharp,ysharp,zsharp,v)
-
-      INTEGER             n,v
-      DOUBLE PRECISION    x(n), y(n), z(n), xsharp(n), ysharp(n),
-     & hsharp, htime, zsharp(n)
-         
-c      DLL_EXPORT sharp3dB
-
-      CALL  sharpB(x,y,z,xsharp,ysharp,zsharp,n,hsharp,htime,v)
-      
-      END
-
-CCCCC
-      SUBROUTINE  sharp(x,y,z,xsharp,ysharp,zsharp,n,h,htime,v)
+      SUBROUTINE  sharp3(x,y,z,xsharp,ysharp,zsharp,n,h,htime,v)
 
       INTEGER               I, J, K, n, v
       DOUBLE PRECISION      x(n), y(n), z(n), xsharp(n), ysharp(n), 
@@ -44,7 +12,6 @@ CCCCC
       CALL assign(x,x2,n)
       CALL assign(y,y2,n)
       CALL assign(z,z2,n)
-c      hs = h/dsqrt(2.0d0*dfloat(v))
       hs = h
       DO 5 K = 1, v
       DO 10 J = 1, n
@@ -81,9 +48,9 @@ c      hs = h/dsqrt(2.0d0*dfloat(v))
 
       END
 
-CCCCC
+CCCCC faster version, if time ordered
 
-      SUBROUTINE  sharpB(x,y,z,xsharp,ysharp,zsharp,n,h,htime,v)
+      SUBROUTINE  sharp3B(x,y,z,xsharp,ysharp,zsharp,n,h,htime,v)
       
       INTEGER               I, J, K, n, v
       DOUBLE PRECISION      x(n), y(n), z(n), xsharp(n), ysharp(n),
@@ -95,7 +62,6 @@ CCCCC
       CALL assign(x,x2,n)
       CALL assign(y,y2,n)
       CALL assign(z,z2,n)
-c      hs = h/dsqrt(2.0d0*dfloat(v))
       hs = h
       DO 5 K = 1, v
       DO 10 J = 1, n
@@ -105,11 +71,9 @@ c      hs = h/dsqrt(2.0d0*dfloat(v))
          znumer = 0.0d0
          denom = 0.0d0
       
-C       forwards from J inclusive ...
         I = J
         tmp       = (z2(J)-z2(I))/htime
         KK(3)     = kernel2(tmp)
-
                     
         DO 20 WHILE (I .LE. n)
 C       do spatial calculations only if time kernel is "big" enough...
@@ -132,7 +96,6 @@ C       do spatial calculations only if time kernel is "big" enough...
                     
 20       CONTINUE
 
-C       backwards from (J-1) inclusive ...
          I = J - 1
          DO 30 WHILE (I .LT. J .AND. I .NE. 0)
             tmp       = (z2(J)-z2(I))/htime
@@ -171,10 +134,85 @@ C        do spatial calculations only if time kernel is "big" enough...
                     
       END
              
-CCCCC
 
 CCCCC
-C Gaussian Kernel:
+      SUBROUTINE  sharp2(x,y,xsharp,ysharp,n,h,htime,v)
+
+      INTEGER               I, J, n, v
+      DOUBLE PRECISION      x(n), y(n), xsharp(n), ysharp(n), h,
+     & tmp, htime
+      DOUBLE PRECISION      hs, x2(30000), y2(30000), KK(2), 
+     & xnumer, ynumer, denom
+      DOUBLE PRECISION      kernel 
+      
+      CALL assign(x,x2,n)
+      CALL assign(y,y2,n)
+      hs = h
+      DO 5 K = 1, v
+      DO 10 J = 1, n
+
+         xnumer = 0.0d0
+         ynumer = 0.0d0
+         denom = 0.0d0
+         DO 20 I = 1, n
+
+            tmp       = (x2(J)-x2(I))/hs
+            KK(1)     = kernel(tmp, 1.0d0)
+            tmp       = (y2(J)-y2(I))/hs
+            KK(2)     = kernel(tmp, 1.0d0)
+            tmp       = KK(1)*KK(2)
+            xnumer    = xnumer + x2(I)*tmp
+            ynumer    = ynumer + y2(I)*tmp
+            denom     = denom + tmp
+
+20       CONTINUE
+         xsharp(J) = xnumer/denom
+         ysharp(J) = ynumer/denom
+
+10     CONTINUE
+       CALL assign(xsharp, x2, n)
+       CALL assign(ysharp, y2, n)
+
+5      CONTINUE
+
+      END
+
+CCCCC Drivers:
+
+      SUBROUTINE  sharp3d(n,hsharp,htime,x,y,z,xsharp,ysharp,zsharp,v)
+
+      INTEGER             n,v
+      DOUBLE PRECISION    x(n), y(n), z(n), xsharp(n), ysharp(n), 
+     & hsharp, htime, zsharp(n)
+      
+      CALL  sharp3(x,y,z,xsharp,ysharp,zsharp,n,hsharp,htime,v)
+
+      END
+
+CCCCC
+      SUBROUTINE  sharp3dB(n,hsharp,htime,x,y,z,xsharp,ysharp,zsharp,v)
+
+      INTEGER             n,v
+      DOUBLE PRECISION    x(n), y(n), z(n), xsharp(n), ysharp(n),
+     & hsharp, htime, zsharp(n)
+         
+      CALL  sharp3B(x,y,z,xsharp,ysharp,zsharp,n,hsharp,htime,v)
+      
+      END
+
+CCCCC
+
+      SUBROUTINE  sharp2d(n,hsharp,htime,x,y,xsharp,ysharp,v)
+
+      INTEGER             n,v
+      DOUBLE PRECISION    x(n), y(n), xsharp(n), ysharp(n), 
+     & hsharp, htime
+      
+      CALL  sharp2(x,y,xsharp,ysharp,n,hsharp,htime,v)
+
+      END
+
+CCCCC Gaussian Kernel:
       
       DOUBLE PRECISION FUNCTION  kernel(x,h)
 
@@ -242,4 +280,3 @@ CCCCC
       END
 
 !CCCCC
-

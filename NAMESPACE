@@ -1,6 +1,5 @@
-exportPattern(".")
-export(sharp1d, sharp2d, sharp3d, sharp3dB)
-import(
-  scatterplot3d 
-)
+export(sharp1d, sharp2d, sharp3d, sharp3dB, pllr, lambda, MISE, numericalDerivative, penlocreg, 
+SecondDerivativePenalty, sharpen)
+import(scatterplot3d, KernSmooth)
+importFrom("stats", "approx", "dnorm", "na.omit", "optim", "splinefun", "var")
 useDynLib(CHsharp)
